@@ -1,0 +1,17 @@
+{
+  "rules": [
+    {
+      "name": "lethal_trifecta_block",
+      "required_capabilities": [
+        "reads_private_data",
+        "sees_untrusted_content",
+        "can_exfiltrate"
+      ],
+      "action": "block",
+      "reason": "Blocked lethal-trifecta path in a single session. Route through HITL or split into isolated sessions.",
+      "required_approval_roles": [
+        "security_reviewer"
+      ]
+    }
+  ]
+}

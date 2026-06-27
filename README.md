@@ -41,6 +41,24 @@ pip install -e .[dev]
 pytest
 ```
 
+## CLI simulation
+
+```bash
+trifecta-guard \
+  --policy config/policy.json \
+  --chain "gmail_read:private,web_fetch:untrusted,http_post:exfil"
+```
+
+This prints per-tool decisions and will block on lethal-trifecta composition.
+
+## Policy config
+
+Policy is file-driven using `config/policy.json`. You can add additional rules with:
+- `required_capabilities`
+- `action` (`allow`, `block`, `hitl`, `fresh_session`, `secure_env`)
+- `reason`
+- `required_approval_roles`
+
 ## Minimal usage
 
 ```python
@@ -63,4 +81,4 @@ for tool in tools:
 
 ## Repo status
 
-Initial scaffold with core engine, adapters, tests, and architecture docs.
+Initial scaffold with core engine, adapters, config-driven policy, CLI, tests, and CI.

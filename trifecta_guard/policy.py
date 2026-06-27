@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
+from pathlib import Path
+
+from pydantic import BaseModel, Field, ValidationError
 
 from trifecta_guard.models import Capability, GuardAction, PolicyDecision
 
@@ -15,6 +19,27 @@ class PolicyRule:
 
     def matches(self, capabilities: set[Capability]) -> bool:
         return self.required_capabilities.issubset(capabilities)
+
+
+class PolicyRuleModel(BaseModel):
+    name: str = Field(min_length=1)
+    required_capabilities: set[Capability] = Field(default_factory=set)
+    action: GuardAction
+    reason: str = Field(min_length=1)
+    required_approval_roles: list[str] = Field(default_factory=list)
+
+    def to_rule(self) -> PolicyRule:
+        return PolicyRule(
+            name=self.name,
+            required_capabilities=self.required_capabilities,
+            action=self.action,
+            reason=self.reason,
+            required_approval_roles=self.required_approval_roles,
+        )
+
+
+class PolicyConfigModel(BaseModel):
+    rules: list[PolicyRuleModel]
 
 
 class GuardPolicy:
@@ -60,3 +85,17 @@ class GuardPolicy:
             reason="No blocking policy matched.",
             matched_capabilities=capabilities,
         )
+
+    @classmethod
+    def from_config_file(cls, path: str | Path) -> "GuardPolicy":
+        config_path = Path(path)
+        if not config_path.exists():
+            raise FileNotFoundError(f"Policy file not found: {config_path}")
+        raw = config_path.read_text(encoding="utf-8")
+        try:
+            loaded = json.loads(raw)
+            config = PolicyConfigModel.model_validate(loaded)
+        except (json.JSONDecodeError, ValidationError) as exc:
+            raise ValueError(f"Invalid policy config: {config_path}") from exc
+        rules = [item.to_rule() for item in config.rules]
+        return cls(rules=rules)
