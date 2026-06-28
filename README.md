@@ -154,14 +154,6 @@ Supported actions:
 - `fresh_session`
 - `secure_env`
 
-## Making this public
-
-Before switching the repository visibility to public:
-1. Verify no secrets in commit history.
-2. Confirm `LICENSE`, `CONTRIBUTING.md`, and `SECURITY.md` are present.
-3. Ensure CI is green on `main`.
-4. Add maintainers and invite collaborators with least-privilege permissions.
-
 ## Open source and governance
 
 - License: [MIT](./LICENSE)
