@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from trifecta_guard.models import Capability, GuardAction, PolicyDecision, ToolCallRecord, ToolSpec
+from trifecta_guard.models import Capability, PolicyDecision, ToolCallRecord, ToolSpec
 from trifecta_guard.policy import GuardPolicy
 
 
@@ -33,10 +33,7 @@ class TaintEngine:
     def evaluate_tool_call(self, session_id: str, tool: ToolSpec) -> PolicyDecision:
         current = self.get_state(session_id)
         candidate = current.clone_with(tool)
-        decision = self._policy.evaluate(candidate.capabilities)
-        if decision.action == GuardAction.ALLOW:
-            self._sessions[session_id] = candidate
-        return decision
+        return self._policy.evaluate(candidate.capabilities)
 
     def commit_tool_call(self, session_id: str, tool: ToolSpec) -> SessionState:
         current = self.get_state(session_id)
